@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    tools:context=".ui.activities.SetProfileActivity">
+
+    <TextView
+        app:layout_constraintBottom_toTopOf="@+id/text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:text="Just one more step"
+        android:textColor="@color/white"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text"
+        app:layout_constraintBottom_toTopOf="@+id/pic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Complete your profile to get started"
+        android:textColor="@color/white"
+        app:layout_constraintWidth_percent="0.9"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/pic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/default_user_art"
+        android:onClick="choosePic"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/name"
+        app:layout_constraintWidth_max="270dp"
+        app:layout_constraintWidth_percent="0.8"
+        android:layout_width="0dp"
+        android:gravity="center"
+        android:hint="Name"
+        android:background="@drawable/textbox"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/pic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:inputType="textPersonName|textCapSentences"
+        android:padding="6dp" />
+
+    <com.google.android.material.button.MaterialButton
+        app:layout_constraintTop_toBottomOf="@+id/name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:id="@+id/verify"
+        android:text="Done"
+        android:layout_gravity="center_horizontal"
+        app:iconTint="@color/colorPrimary"
+        app:icon="@drawable/ic_done_black_24dp"
+        android:textColor="@color/colorPrimary"
+        android:onClick="proceed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

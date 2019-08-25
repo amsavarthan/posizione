@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activities.SettingsActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/userLayout"
+            android:onClick="openProfileSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/pic"
+                android:transitionName="image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pic"/>
+
+            <TextView
+                android:id="@+id/phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ddd"
+                app:layout_constraintTop_toBottomOf="@id/name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/logout"
+                android:onClick="logout"
+                android:text="@string/logout"
+                android:layout_marginTop="5dp"
+                app:iconTint="@color/colorPrimary"
+                android:textColor="@color/colorPrimary"
+                app:icon="@drawable/ic_exit_to_app_black_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/phone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:background="#414141"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userLayout"
+            android:layout_width="0dp"
+            android:layout_height="0.85dp"/>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/privacy_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Who can track you"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+        <RadioGroup
+            android:id="@+id/radiogroup0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/privacy_title">
+
+            <RadioButton
+                android:id="@+id/ps_r1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Everyone"
+                android:textColor="@color/white"
+                />
+
+            <RadioButton
+                android:id="@+id/ps_r2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Only accepted users"
+                android:textColor="@color/white"
+                />
+
+            <RadioButton
+                android:id="@+id/ps_r3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nobody"
+                android:textColor="@color/white"
+                />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/live_location_title"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radiogroup0" />
+
+        <RadioGroup
+            android:id="@+id/radiogroup1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title">
+
+            <RadioButton
+                android:id="@+id/ll_r1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/more_efficient"
+                android:textColor="@color/white"
+                />
+
+            <RadioButton
+                android:id="@+id/ll_r2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/battery_saving"
+                android:textColor="@color/white"
+                />
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/title2"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/update_device_info"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radiogroup1" />
+
+        <RadioGroup
+            android:id="@+id/radiogroup2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title2">
+
+            <RadioButton
+                android:id="@+id/di_r1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/update_when_i_open_the_app"
+                android:textColor="@color/white"
+                />
+
+            <RadioButton
+                android:id="@+id/di_r2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/update_using_background_service"
+                android:textColor="@color/white" />
+
+
+        </RadioGroup>
+
+        <!--TODO: Unknown error occurs when input received so fix later-->
+
+        <TextView
+            android:id="@+id/title3"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/speeds"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radiogroup2" />
+
+        <TextView
+            android:id="@+id/walk_speed"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:drawableStart="@drawable/ic_directions_walk_24dp"
+            android:drawableLeft="@drawable/ic_directions_walk_24dp"
+            android:drawablePadding="10dp"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="@string/walking_speed"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@+id/walk_speed_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title3" />
+
+        <TextView
+            android:id="@+id/walk_speed_txt"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ddd"
+            app:layout_constraintBottom_toTopOf="@+id/jog_speed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/walk_speed" />
+
+        <TextView
+            android:id="@+id/jog_speed"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:drawableStart="@drawable/ic_directions_run_24dp"
+            android:drawableLeft="@drawable/ic_directions_run_24dp"
+            android:drawablePadding="10dp"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="@string/jogging_speed"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@+id/jog_speed_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/walk_speed" />
+
+        <TextView
+            android:id="@+id/jog_speed_txt"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ddd"
+            app:layout_constraintBottom_toTopOf="@+id/run_speed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/jog_speed" />
+
+        <TextView
+            android:id="@+id/run_speed"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:drawableStart="@drawable/exercise_24dp"
+            android:drawableLeft="@drawable/exercise_24dp"
+            android:drawablePadding="10dp"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="@string/running_speed"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@+id/run_speed_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/jog_speed" />
+
+        <TextView
+            android:id="@+id/run_speed_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ddd"
+            app:layout_constraintBottom_toBottomOf="@+id/run_speed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/jog_speed" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

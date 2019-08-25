@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary"
+    tools:context=".ui.activities.VerifyPhoneActivity">
+
+
+    <TextView
+        android:id="@+id/text"
+        app:layout_constraintBottom_toTopOf="@id/otp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:text="Verify your phone number"
+        android:textColor="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/otp"
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintBottom_toTopOf="@id/edit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/otp_sent"
+        android:textColor="@color/white"
+        android:layout_marginBottom="5dp"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="changeNumber"
+        android:layout_marginBottom="6dp"
+        android:drawablePadding="6dp"
+        android:text="Change number"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toTopOf="@id/code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.mukesh.OtpView
+        android:id="@+id/code"
+        android:layout_width="wrap_content"
+        app:itemCount="6"
+        android:layout_gravity="center"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:padding="10dp"
+        android:textColor="@color/colorAccent"
+        app:lineColor="@color/white"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@+id/code"
+        app:layout_constraintStart_toStartOf="@+id/code"
+        app:layout_constraintTop_toBottomOf="@+id/code">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resend"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:enabled="false"
+            android:onClick="resend"
+            android:text="@string/resend"
+            android:textColor="@color/colorAccent"
+            app:strokeColor="@color/colorAccent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/verify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="verify"
+            android:text="@string/verify"
+            android:textColor="@color/colorPrimary" />
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:id="@+id/pbar"
+            android:layout_marginStart="5dp"
+            android:layout_width="20dp"
+            android:layout_height="30dp"
+            android:indeterminate="true"
+            android:layout_marginLeft="5dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

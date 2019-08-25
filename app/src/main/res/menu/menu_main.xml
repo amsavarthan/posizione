@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_manage"
+        android:orderInCategory="100"
+        android:title="Manage trackers"
+        android:icon="@drawable/ic_people_24dp"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_requests"
+        android:orderInCategory="200"
+        android:title="Track requests"
+        app:actionLayout="@layout/custom_menu_item"
+        android:icon="@drawable/ic_notifications_none_24dp"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_sync"
+        android:orderInCategory="300"
+        android:title="@string/action_sync"
+        android:icon="@drawable/ic_refresh_24dp"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_settings"
+        android:orderInCategory="400"
+        android:title="@string/settings"
+        app:showAsAction="never"/>
+
+</menu>

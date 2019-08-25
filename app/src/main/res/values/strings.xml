@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Posizione</string>
+    <string name="accept_terms">By clicking the button below you accept our Terms of Service and Privacy Policy</string>
+    <string name="get_started">Get Started</string>
+    <string name="next">Next</string>
+    <string name="verify">Verify</string>
+    <string name="otp_sent">Waiting for automatically verifying the code sent to %s</string>
+    <string name="otp_failed">Auto verification failed, Enter the code we sent to %s</string>
+    <string name="resend">Resend</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="live_location">Turn on live location updates</string>
+    <string name="short_status">You are %s</string>
+    <string name="status_with_speed">You are %s at rate of %sm/s</string>
+    <string name="details">You are %s\nLatitude : %s\nLongitude : %s\nAltitude : %s\nSpeed : %sm/s</string>
+    <string name="running_in_background">Posizione is running in background</string>
+    <string name="location_on">Live Location is on</string>
+    <string name="settings">Settings</string>
+    <string name="title_activity_person_detail_view">Map</string>
+    <string name="reset">Reset</string>
+    <string name="showing_your_location">Showing your location</string>
+    <string name="action_sync">Sync</string>
+    <string name="action_logout">Logout</string>
+    <string name="edit_phone_title">Change your phone number</string>
+    <string name="save">Save</string>
+    <string name="update_using_background_service">Update using background service</string>
+    <string name="update_when_i_open_the_app">Update when I open the app</string>
+    <string name="update_device_info">Update device info</string>
+    <string name="battery_saving">Battery saving</string>
+    <string name="more_efficient">More efficient</string>
+    <string name="live_location_title">Live location</string>
+    <string name="speeds">Speeds</string>
+    <string name="walking_speed">Walking speed</string>
+    <string name="jogging_speed">Jogging speed</string>
+    <string name="running_speed">Running speed</string>
+    <string name="logout">Logout</string>
+</resources>

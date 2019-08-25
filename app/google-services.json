@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "692504123192",
+    "firebase_url": "https://project-posizione.firebaseio.com",
+    "project_id": "project-posizione",
+    "storage_bucket": "project-posizione.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:692504123192:android:2e9f545feef8e3f6",
+        "android_client_info": {
+          "package_name": "com.amsavarthan.posizione"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "692504123192-297hc9kd85529ao6rjsq6feq7hs93n0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.amsavarthan.posizione",
+            "certificate_hash": "6cbd83fc4d53abbe2cb2016167adb859b1944d6b"
+          }
+        },
+        {
+          "client_id": "692504123192-uop1d5miiplh6lcejjffk4nji7g8clme.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.amsavarthan.posizione",
+            "certificate_hash": "d88b6017381be1eb857fee79bddccff8baf86f32"
+          }
+        },
+        {
+          "client_id": "692504123192-l2p6869ibjafqtko9o3gucn7m02fg62g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXE4Sz7fCk5i1i-2Hn2TAi_hWSPbXcFOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "692504123192-l2p6869ibjafqtko9o3gucn7m02fg62g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
