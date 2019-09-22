@@ -35,4 +35,10 @@
     <string name="logout">Logout</string>
 
     <string name="mapbox_access_token">pk.eyJ1IjoibHZhbXNhdmFydGhhbiIsImEiOiJjazB0c3Y2ZmswN2Y5M25wZDF1ajZmZDYzIn0.M7_VaGo41CZTFTq2MTCDfA</string>
+    <string name="action_fav">Favourites</string>
+    <string name="track_requests">Track requests</string>
+    <string name="manage_trackers">Manage trackers</string>
+    <string name="fav_description">People you add to favourites will be alerted through SMS when you are in any kind of emergency.</string>
+    <string name="accident_detection_on">Turn on Accident detection</string>
+    <string name="accident_detection_off">Turn off Accident detection</string>
 </resources>

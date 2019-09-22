@@ -1,4 +1,4 @@
-package com.amsavarthan.posizione.room.friends;
+package com.amsavarthan.posizione.room.fav;
 
 
 import android.os.Parcel;
@@ -9,8 +9,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "friends")
-public class FriendEntity implements Parcelable {
+@Entity(tableName = "favourites")
+public class FavEntity implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -29,10 +29,11 @@ public class FriendEntity implements Parcelable {
     @ColumnInfo(name = "who_can_track")
     private String who_can_track;
 
-    public FriendEntity() {
+    public FavEntity() {
+
     }
 
-    public FriendEntity(int id, String name, String pic, String unique_id, String location, String device, String phone, String who_can_track) {
+    public FavEntity(int id, String name, String pic, String unique_id, String location, String device, String phone, String who_can_track) {
         this.id = id;
         this.name = name;
         this.pic = pic;
@@ -43,26 +44,26 @@ public class FriendEntity implements Parcelable {
         this.who_can_track = who_can_track;
     }
 
-    protected FriendEntity(Parcel in) {
+    protected FavEntity(Parcel in) {
         id = in.readInt();
         name = in.readString();
         pic = in.readString();
         unique_id = in.readString();
         location = in.readString();
-        device = in.readString();
-        phone = in.readString();
-        who_can_track = in.readString();
+        device=in.readString();
+        phone=in.readString();
+        who_can_track=in.readString();
     }
 
-    public static final Creator<FriendEntity> CREATOR = new Creator<FriendEntity>() {
+    public static final Creator<FavEntity> CREATOR = new Creator<FavEntity>() {
         @Override
-        public FriendEntity createFromParcel(Parcel in) {
-            return new FriendEntity(in);
+        public FavEntity createFromParcel(Parcel in) {
+            return new FavEntity(in);
         }
 
         @Override
-        public FriendEntity[] newArray(int size) {
-            return new FriendEntity[size];
+        public FavEntity[] newArray(int size) {
+            return new FavEntity[size];
         }
     };
 

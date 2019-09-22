@@ -68,8 +68,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.abara.library.batterystats.BatteryStats;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -250,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mAdapter);
+
 
         final CardView cardView=findViewById(R.id.card);
         listener=new HidingScrollListener(1) {
@@ -542,19 +541,6 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
                             //When user is online get data from FIREBASE
                             friendEntities.clear();
-                            findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
-                            findViewById(R.id.emptyLayout).setAlpha(0.0f);
-                            findViewById(R.id.emptyLayout).animate()
-                                    .alpha(1.0f)
-                                    .setDuration(500)
-                                    .setListener(new AnimatorListenerAdapter() {
-                                        @Override
-                                        public void onAnimationEnd(Animator animation) {
-                                            super.onAnimationEnd(animation);
-                                            findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
-                                        }
-                                    })
-                                    .start();
 
                             FirebaseDatabase.getInstance()
                                     .getReference()
@@ -716,6 +702,21 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
                                             }
                                             refreshLayout.setRefreshing(false);
+                                            if(friendEntities.isEmpty()){
+                                                findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
+                                                findViewById(R.id.emptyLayout).setAlpha(0.0f);
+                                                findViewById(R.id.emptyLayout).animate()
+                                                        .alpha(1.0f)
+                                                        .setDuration(300)
+                                                        .setListener(new AnimatorListenerAdapter() {
+                                                            @Override
+                                                            public void onAnimationEnd(Animator animation) {
+                                                                super.onAnimationEnd(animation);
+                                                                findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
+                                                            }
+                                                        })
+                                                        .start();
+                                            }
 
                                         }
 
@@ -975,6 +976,9 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                 break;
             case R.id.action_requests:
                 startActivity(new Intent(instance, TrackRequests.class));
+                break;
+            case R.id.action_fav:
+                startActivity(new Intent(instance, FavouritesActivity.class));
                 break;
             case R.id.action_manage:
                 startActivity(new Intent(instance, ManageTrackers.class));

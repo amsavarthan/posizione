@@ -82,6 +82,41 @@
             android:layout_height="0.85dp"/>
 
         <TextView
+            android:id="@+id/acci_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Accident detection"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+
+        <TextView
+            android:id="@+id/info"
+            android:textColor="#FFF"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="Accident detection may not be accurate always as it is detected using your device accelerometer and shake sensor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/acci_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Switch
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/acci_switch"
+            android:switchPadding="20dp"
+            android:padding="10dp"
+            android:textColor="#FFF"
+            app:layout_constraintTop_toBottomOf="@id/info"
+            android:layout_marginBottom="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/privacy_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +125,7 @@
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            app:layout_constraintTop_toBottomOf="@+id/acci_switch" />
 
         <RadioGroup
             android:id="@+id/radiogroup0"
@@ -202,7 +237,6 @@
 
         <TextView
             android:id="@+id/title3"
-            android:visibility="gone"
             android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -215,7 +249,6 @@
 
         <TextView
             android:id="@+id/walk_speed"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -235,7 +268,6 @@
 
         <TextView
             android:id="@+id/walk_speed_txt"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#ddd"
@@ -245,7 +277,6 @@
 
         <TextView
             android:id="@+id/jog_speed"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -265,7 +296,6 @@
 
         <TextView
             android:id="@+id/jog_speed_txt"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#ddd"
@@ -276,7 +306,6 @@
         <TextView
             android:id="@+id/run_speed"
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"

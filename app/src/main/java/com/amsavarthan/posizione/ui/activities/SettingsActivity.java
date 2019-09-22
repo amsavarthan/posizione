@@ -2,10 +2,12 @@ package com.amsavarthan.posizione.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import com.amsavarthan.posizione.room.friends.FriendDatabase;
 import com.amsavarthan.posizione.room.friends.FriendEntity;
 import com.amsavarthan.posizione.room.user.UserDatabase;
 import com.amsavarthan.posizione.room.user.UserEntity;
+import com.amsavarthan.posizione.services.AccidentDetectionService;
 import com.amsavarthan.posizione.utils.AppExecutors;
 import com.amsavarthan.posizione.utils.Utils;
 import com.bumptech.glide.Glide;
@@ -43,6 +47,8 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.amsavarthan.posizione.utils.Utils.isMyServiceRunning;
+
 public class SettingsActivity extends AppCompatActivity {
 
     private RadioButton ll_r1,ll_r2,di_r1,di_r2,ps_r1,ps_r2,ps_r3;
@@ -55,6 +61,12 @@ public class SettingsActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ProgressDialog mDialog;
     private FriendDatabase friendDatabase;
+    public Switch aSwitch;
+    static SettingsActivity instance;
+
+    public static SettingsActivity getInstance() {
+        return instance;
+    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -104,6 +116,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        instance=this;
         getSupportActionBar().setTitle("Settings");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -112,6 +125,7 @@ public class SettingsActivity extends AppCompatActivity {
         friendDatabase=FriendDatabase.getInstance(this);
         mAuth=FirebaseAuth.getInstance();
 
+        aSwitch=findViewById(R.id.acci_switch);
         ll_r1=findViewById(R.id.ll_r1);
         ll_r2=findViewById(R.id.ll_r2);
         di_r1=findViewById(R.id.di_r1);
@@ -119,27 +133,47 @@ public class SettingsActivity extends AppCompatActivity {
         ps_r1=findViewById(R.id.ps_r1);
         ps_r2=findViewById(R.id.ps_r2);
         ps_r3=findViewById(R.id.ps_r3);
-        /*walk_speed_txt=findViewById(R.id.walk_speed_txt);
+        walk_speed_txt=findViewById(R.id.walk_speed_txt);
         jog_speed_txt=findViewById(R.id.jog_speed_txt);
-        run_speed_txt=findViewById(R.id.run_speed_txt);*/
+        run_speed_txt=findViewById(R.id.run_speed_txt);
         name=findViewById(R.id.name);
         phone=findViewById(R.id.phone);
         pic=findViewById(R.id.pic);
-        /*TextView walk_speed_txtview = findViewById(R.id.walk_speed);
-        TextView jog_speed_txtview = findViewById(R.id.jog_speed);
-        TextView run_speed_txtview = findViewById(R.id.run_speed);*/
+        TextView walk_speed_txtview = findViewById(R.id.walk_speed);
+        final TextView jog_speed_txtview = findViewById(R.id.jog_speed);
+        final TextView run_speed_txtview = findViewById(R.id.run_speed);
 
         privacy_editor=getSharedPreferences("privacy",MODE_PRIVATE).edit();
         service_editor=getSharedPreferences("service",MODE_PRIVATE).edit();
-        speed_editor=getSharedPreferences("service",MODE_PRIVATE).edit();
+        speed_editor=getSharedPreferences("speeds",MODE_PRIVATE).edit();
 
         who_can_track=getSharedPreferences("privacy",MODE_PRIVATE).getString("who_can_track","2");
 
-        /*walk_speed=getSharedPreferences("speeds",MODE_PRIVATE).getInt("walk_speed",10);
+        walk_speed=getSharedPreferences("speeds",MODE_PRIVATE).getInt("walk_speed",10);
         jog_speed=getSharedPreferences("speeds",MODE_PRIVATE).getInt("jog_speed",35);
-        run_speed=getSharedPreferences("speeds",MODE_PRIVATE).getInt("run_speed",75);*/
+        run_speed=getSharedPreferences("speeds",MODE_PRIVATE).getInt("run_speed",75);
         boolean battery_saver = getSharedPreferences("service", MODE_PRIVATE).getBoolean("battery_saving", true);
         boolean update = getSharedPreferences("service", MODE_PRIVATE).getBoolean("update_device_info_using_service", false);
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, final boolean b) {
+                if (b) {
+                    aSwitch.setText(getResources().getString(R.string.accident_detection_off));
+                    startAccidentService();
+                }else{
+                    aSwitch.setText(getResources().getString(R.string.accident_detection_on));
+                    stopAccidentService();
+                }
+            }
+        });
+        if(isMyServiceRunning(AccidentDetectionService.class,this)){
+            aSwitch.setText(getResources().getString(R.string.accident_detection_off));
+            aSwitch.setChecked(true);
+        }else{
+            aSwitch.setText(getResources().getString(R.string.accident_detection_on));
+            aSwitch.setChecked(false);
+        }
 
         mDialog=new ProgressDialog(this);
         mDialog.setCancelable(false);
@@ -192,9 +226,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
 
-        /*walk_speed_txt.setText(String.format("%s km/hr", String.valueOf(walk_speed)));
+        walk_speed_txt.setText(String.format("%s km/hr", String.valueOf(walk_speed)));
         jog_speed_txt.setText(String.format("%s km/hr", String.valueOf(jog_speed)));
-        run_speed_txt.setText(String.format("%s km/hr", String.valueOf(run_speed)));*/
+        run_speed_txt.setText(String.format("%s km/hr", String.valueOf(run_speed)));
 
         String pass=getSharedPreferences("lock",MODE_PRIVATE).getString("password","0");
         if(!pass.equalsIgnoreCase("0")){
@@ -376,7 +410,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
 
-        /*walk_speed_txtview.setOnClickListener(new View.OnClickListener() {
+        walk_speed_txtview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -391,7 +425,7 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                         })
                         .inputType(InputType.TYPE_CLASS_NUMBER)
-                        .input("Speed in km/hr", String.valueOf(walk_speed), new MaterialDialog.InputCallback() {
+                        .input("Speed in km/hr", walk_speed_txt.getText().toString().replace(" km/hr",""), new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                                 String speed=input.toString().replace(" ","");
@@ -407,7 +441,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
 
                                 speed_editor.putInt("walk_speed",Integer.parseInt(speed)).apply();
-                                walk_speed_txt.setText(walk_speed);
+                                walk_speed_txt.setText(String.format("%s km/hr",speed));
                             }
                         })
                         .show();
@@ -430,7 +464,7 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                         })
                         .inputType(InputType.TYPE_CLASS_NUMBER)
-                        .input("Speed in km/hr", String.valueOf(jog_speed), new MaterialDialog.InputCallback() {
+                        .input("Speed in km/hr", jog_speed_txt.getText().toString().replace(" km/hr",""), new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                                 String speed=input.toString().replace(" ","");
@@ -446,7 +480,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
 
                                 speed_editor.putInt("jog_speed",Integer.parseInt(speed)).apply();
-                                jog_speed_txt.setText(jog_speed);
+                                jog_speed_txt.setText(String.format("%s km/hr", speed));
 
                             }
                         })
@@ -470,7 +504,7 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                         })
                         .inputType(InputType.TYPE_CLASS_NUMBER)
-                        .input("Speed in km/hr", String.valueOf(run_speed), new MaterialDialog.InputCallback() {
+                        .input("Speed in km/hr", run_speed_txt.getText().toString().replace(" km/hr",""), new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                                 String speed=input.toString().replace(" ","");
@@ -486,14 +520,14 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
 
                                 speed_editor.putInt("run_speed",Integer.parseInt(speed)).apply();
-                                run_speed_txt.setText(run_speed);
+                                run_speed_txt.setText(String.format("%s km/hr", speed));
 
                             }
                         })
                         .show();
 
             }
-        });*/
+        });
 
         ll_r1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -560,9 +594,9 @@ public class SettingsActivity extends AppCompatActivity {
                 ll_r2.setChecked(true);
                 ll_r1.setChecked(false);
 
-                //walk_speed_txt.setText("10 km/hr");
-                //jog_speed_txt.setText("35 km/hr");
-                //run_speed_txt.setText("75 km/hr");
+                walk_speed_txt.setText("10 km/hr");
+                jog_speed_txt.setText("35 km/hr");
+                run_speed_txt.setText("75 km/hr");
 
                 break;
             default:
@@ -587,6 +621,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    private void startAccidentService() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("com.amsavarthan.posizione.accident_detector.START");
+        broadcastIntent.setClass(getApplicationContext(), ManageServiceReceiver.class);
+        sendBroadcast(broadcastIntent);
+    }
+
+    private void stopAccidentService() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("com.amsavarthan.posizione.accident_detector.STOP");
+        broadcastIntent.setClass(getApplicationContext(), ManageServiceReceiver.class);
+        sendBroadcast(broadcastIntent);
+    }
+
     public void logout(View view) {
 
         if(!Utils.isOnline(this)){
@@ -594,19 +642,18 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
 
-        new MaterialDialog.Builder(this)
-                .title("Logout")
-                .content("Are you sure do you want to logout from this device?")
-                .positiveText("Yes")
-                .negativeText("No")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle("Logout")
+                .setMessage("Are you sure do you want to logout from this device?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
                         mDialog.setMessage("Logging out...");
                         mDialog.show();
 
                         stopService();
+                        stopAccidentService();
 
                         Map<String,Object> map=new HashMap<>();
                         map.put("token","");
@@ -628,6 +675,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
+
                                                         mAuth.signOut();
                                                         mDialog.dismiss();
                                                         startActivity(new Intent(getApplicationContext(),SplashScreen.class));
@@ -637,6 +685,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
                                                         finish();
+
                                                     }
                                                 });
                                             }
@@ -655,7 +704,15 @@ public class SettingsActivity extends AppCompatActivity {
 
                     }
                 })
-                .show();
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+        AlertDialog alertDialog=builder.create();
+        alertDialog.show();
 
     }
 }

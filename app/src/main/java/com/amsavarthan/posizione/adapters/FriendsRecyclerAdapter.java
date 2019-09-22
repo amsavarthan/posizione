@@ -31,7 +31,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amsavarthan.posizione.BuildConfig;
 import com.amsavarthan.posizione.R;
-import com.amsavarthan.posizione.models.User;
+import com.amsavarthan.posizione.room.fav.FavDatabase;
+import com.amsavarthan.posizione.room.fav.FavEntity;
 import com.amsavarthan.posizione.room.friends.FriendDatabase;
 import com.amsavarthan.posizione.room.friends.FriendEntity;
 import com.amsavarthan.posizione.ui.activities.PersonDetailView;
@@ -64,11 +65,13 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
     Context context;
     List<FriendEntity> friendEntities;
     FriendDatabase friendDatabase;
+    FavDatabase favDatabase;
 
     public FriendsRecyclerAdapter(Context context, List<FriendEntity> friendEntities) {
         this.context = context;
         this.friendEntities = friendEntities;
         friendDatabase=FriendDatabase.getInstance(context);
+        favDatabase=FavDatabase.getInstance(context);
     }
 
     @NonNull
@@ -83,11 +86,23 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
     public void onBindViewHolder(@NonNull final FriendsRecyclerAdapter.MyViewHolder holder, int position) {
 
         final FriendEntity friendEntity=friendEntities.get(position);
-
         //Last item
         if(friendEntities.size() > 1 && position == friendEntities.size() - 1){
             holder.itemView.setPadding(0,0,0, dpTopx(context,80));
         }
+
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                FavEntity favEntity=favDatabase.favDao().getFavByUniqueId(friendEntity.getUnique_id());
+                if (favEntity!=null)
+                {
+                    holder.fav.setImageResource(R.drawable.ic_star_black_24dp);
+                }else{
+                    holder.fav.setImageResource(R.drawable.ic_star_border_black_24dp);
+                }
+            }
+        });
 
         holder.name.setText(friendEntity.getName());
         holder.unique_id.setText(friendEntity.getUnique_id());
@@ -96,6 +111,74 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
                 .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.default_user_art))
                 .load(friendEntity.getPic())
                 .into(holder.pic);
+
+        holder.fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                boolean firstrun=context.getSharedPreferences("favourites",Context.MODE_PRIVATE).getBoolean("firstrun",true);
+
+                if(firstrun){
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Note")
+                            .setMessage("People you add to favourites are not added synced across your devices")
+                            .setCancelable(true)
+                            .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    context.getSharedPreferences("favourites",Context.MODE_PRIVATE)
+                                            .edit().putBoolean("firstrun",false)
+                                            .apply();
+                                }
+                            })
+                            .setCancelable(false);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        FavEntity favEntity=favDatabase.favDao().getFavByUniqueId(friendEntity.getUnique_id());
+                        if (favEntity==null)
+                        {
+
+                            FavEntity favourite=new FavEntity();
+                            favourite.setName(friendEntity.getName());
+                            favourite.setLocation(friendEntity.getLocation());
+                            favourite.setPic(friendEntity.getPic());
+                            favourite.setDevice(friendEntity.getDevice());
+                            favourite.setUnique_id(friendEntity.getUnique_id());
+                            favourite.setPhone(friendEntity.getPhone());
+                            favourite.setWho_can_track(friendEntity.getWho_can_track());
+
+                            favDatabase.favDao().addUser(favourite);
+                            AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.fav.setImageResource(R.drawable.ic_star_black_24dp);
+                                    Toast.makeText(context, "Added to favourites", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            favDatabase.favDao().deleteUser(favEntity);
+                            AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.fav.setImageResource(R.drawable.ic_star_border_black_24dp);
+                                    Toast.makeText(context, "Removed from favourites", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        });
 
         holder.share.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -498,13 +581,14 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
 
         CircleImageView pic;
         TextView name,unique_id;
-        ImageView share;
+        ImageView share,fav;
         RelativeLayout item;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             item=itemView.findViewById(R.id.item);
+            fav=itemView.findViewById(R.id.star);
             pic = itemView.findViewById(R.id.pic);
             name = itemView.findViewById(R.id.name);
             unique_id = itemView.findViewById(R.id.id);

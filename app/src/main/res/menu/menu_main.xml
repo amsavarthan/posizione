@@ -4,13 +4,13 @@
 
     <item android:id="@+id/action_manage"
         android:orderInCategory="100"
-        android:title="Manage trackers"
+        android:title="@string/manage_trackers"
         android:icon="@drawable/ic_people_24dp"
         app:showAsAction="always"/>
 
     <item android:id="@+id/action_requests"
         android:orderInCategory="200"
-        android:title="Track requests"
+        android:title="@string/track_requests"
         app:actionLayout="@layout/custom_menu_item"
         android:icon="@drawable/ic_notifications_none_24dp"
         app:showAsAction="always"/>
@@ -21,9 +21,16 @@
         android:icon="@drawable/ic_refresh_24dp"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/action_settings"
+    <item android:id="@+id/action_fav"
         android:orderInCategory="400"
+        android:title="@string/action_fav"
+        android:icon="@drawable/ic_star_white_24dp"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_settings"
+        android:orderInCategory="500"
         android:title="@string/settings"
+        android:icon="@drawable/ic_settings_white_24dp"
         app:showAsAction="never"/>
 
 </menu>

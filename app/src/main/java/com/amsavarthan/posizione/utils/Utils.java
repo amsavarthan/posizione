@@ -61,18 +61,16 @@ public class Utils {
 
         NotificationManager notificationManager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        //notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("posizione","Posizione"));
-
         NotificationChannel request_channel=new NotificationChannel("request","Request Alerts",NotificationManager.IMPORTANCE_HIGH);
         request_channel.enableLights(true);
         request_channel.enableVibration(true);
-        //request_channel.setGroup("posizione");
 
         NotificationChannel location_channel=new NotificationChannel("location","Live Location",NotificationManager.IMPORTANCE_MIN);
         location_channel.enableLights(true);
         location_channel.enableVibration(true);
-        //location_channel.setGroup("posizione");
 
+        NotificationChannel accident_channel=new NotificationChannel("accident","Accident Detector",NotificationManager.IMPORTANCE_NONE);
+        location_channel.enableLights(true);
 
         NotificationChannel other_channel=new NotificationChannel("other","Other Notifications",NotificationManager.IMPORTANCE_HIGH);
         other_channel.enableLights(true);
@@ -81,6 +79,7 @@ public class Utils {
         List<NotificationChannel> notificationChannels=new ArrayList<>();
         notificationChannels.add(request_channel);
         notificationChannels.add(location_channel);
+        notificationChannels.add(accident_channel);
         notificationChannels.add(other_channel);
 
         notificationManager.createNotificationChannels(notificationChannels);

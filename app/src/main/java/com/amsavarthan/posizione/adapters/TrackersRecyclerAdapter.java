@@ -1,7 +1,9 @@
 package com.amsavarthan.posizione.adapters;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +92,7 @@ public class TrackersRecyclerAdapter extends RecyclerView.Adapter<TrackersRecycl
                         final User user=dataSnapshot.getValue(User.class);
 
                         Glide.with(context)
-                                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.default_user_art))
+                                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.default_user_art_invert))
                                 .asBitmap()
                                 .load(user.getImage())
                                 .into(holder.pic);
@@ -102,15 +104,13 @@ public class TrackersRecyclerAdapter extends RecyclerView.Adapter<TrackersRecycl
                             @Override
                             public void onClick(View view) {
 
-                                new MaterialDialog.Builder(context)
-                                        .title("Revoke")
-                                        .content("Are you sure do want to revoke "+user.getName()+" from tracking you?")
-                                        .positiveText("Yes")
-                                        .negativeText("No")
-                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
+                                AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                                builder.setTitle("Revoke")
+                                        .setMessage("Are you sure do want to revoke "+user.getName()+" from tracking you?")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
                                                 mDialog.show();
                                                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                                                     @Override
@@ -167,10 +167,16 @@ public class TrackersRecyclerAdapter extends RecyclerView.Adapter<TrackersRecycl
 
                                                     }
                                                 });
-
                                             }
                                         })
-                                        .show();
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                //do nothing
+                                            }
+                                        });
+                                AlertDialog alertDialog=builder.create();
+                                alertDialog.show();
 
                             }
                         });
