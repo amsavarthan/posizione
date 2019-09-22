@@ -90,6 +90,7 @@ public class ManageTrackers extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        trackersList.clear();
                         for(DataSnapshot trackerData:dataSnapshot.getChildren()){
                             Tracker tracker=trackerData.getValue(Tracker.class);
                             tracker.setUid(trackerData.getKey());

@@ -28,6 +28,8 @@ public class FriendEntity implements Parcelable {
     private String phone;
     @ColumnInfo(name = "who_can_track")
     private String who_can_track;
+    @Ignore
+    private boolean tracking_enabled;
 
     public FriendEntity() {
     }
@@ -44,7 +46,7 @@ public class FriendEntity implements Parcelable {
     }
 
     @Ignore
-    public FriendEntity(String name, String pic, String unique_id, String location, String device, String phone, String who_can_track) {
+    public FriendEntity(String name, String pic, String unique_id, String location, String device, String phone, String who_can_track,boolean tracking_enabled) {
         this.name = name;
         this.pic = pic;
         this.unique_id = unique_id;
@@ -52,6 +54,7 @@ public class FriendEntity implements Parcelable {
         this.device = device;
         this.phone = phone;
         this.who_can_track = who_can_track;
+        this.tracking_enabled=tracking_enabled;
     }
 
     protected FriendEntity(Parcel in) {

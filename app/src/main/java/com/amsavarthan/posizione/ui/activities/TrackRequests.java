@@ -91,7 +91,7 @@ public class TrackRequests extends AppCompatActivity{
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         getSharedPreferences("Request",MODE_PRIVATE).edit().putString("count",String.valueOf(dataSnapshot.getChildrenCount())).apply();
-
+                        requestList.clear();
                         swipeRefreshLayout.setRefreshing(false);
                         for(DataSnapshot requestData:dataSnapshot.getChildren()){
                             Request request=requestData.getValue(Request.class);

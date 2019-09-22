@@ -196,139 +196,185 @@ public class SettingsActivity extends AppCompatActivity {
         jog_speed_txt.setText(String.format("%s km/hr", String.valueOf(jog_speed)));
         run_speed_txt.setText(String.format("%s km/hr", String.valueOf(run_speed)));*/
 
-        ps_r1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        String pass=getSharedPreferences("lock",MODE_PRIVATE).getString("password","0");
+        if(!pass.equalsIgnoreCase("0")){
 
-                if(b){
+            ps_r1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(SettingsActivity.this, "Disable parent lock to change settings", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-                    mDialog.setMessage("Please wait..");
-                    mDialog.show();
+            ps_r2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(SettingsActivity.this, "Disable parent lock to change settings", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-                    Map<String,Object>map=new HashMap<>();
-                    map.put("who_can_track","1");
+            ps_r3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(SettingsActivity.this, "Disable parent lock to change settings", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-                    FirebaseDatabase.getInstance().getReference().child("users")
-                            .child(mAuth.getCurrentUser().getUid())
-                            .updateChildren(map, new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+            ps_r1.setEnabled(false);
+            ps_r2.setEnabled(false);
+            ps_r3.setEnabled(false);
+        }else{
+            ps_r1.setEnabled(true);
+            ps_r2.setEnabled(true);
+            ps_r3.setEnabled(true);
 
-                                    mDialog.dismiss();
-                                    if(databaseError!=null){
-                                        Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
+            ps_r1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                                    if(MainActivity.getInstance()!=null) {
-                                        MainActivity.getInstance().finish();
-                                        MainActivity.instance = null;
-                                    }
-                                    privacy_editor.putString("who_can_track","1").apply();
+                    if(b){
 
-                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            userDatabase.userDao().getUserById(1).setWho_can_track("1");
+                        mDialog.setMessage("Please wait..");
+                        mDialog.show();
+
+                        Map<String,Object>map=new HashMap<>();
+                        map.put("who_can_track","1");
+
+                        FirebaseDatabase.getInstance().getReference().child("users")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .updateChildren(map, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                        mDialog.dismiss();
+                                        if(databaseError!=null){
+                                            Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                            return;
                                         }
-                                    });
 
-                                }
-                            });
+                                        if(MainActivity.getInstance()!=null) {
+                                            MainActivity.getInstance().finish();
+                                            MainActivity.instance = null;
+                                        }
+                                        privacy_editor.putString("who_can_track","1").apply();
+
+                                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                userDatabase.userDao().getUserById(1).setWho_can_track("1");
+                                            }
+                                        });
+
+                                    }
+                                });
+
+                    }
 
                 }
+            });
 
-            }
-        });
+            ps_r2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-        ps_r2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
 
-                if(b){
+                        mDialog.setMessage("Please wait..");
+                        mDialog.show();
 
-                    mDialog.setMessage("Please wait..");
-                    mDialog.show();
+                        Map<String,Object>map=new HashMap<>();
+                        map.put("who_can_track","2");
 
-                    Map<String,Object>map=new HashMap<>();
-                    map.put("who_can_track","2");
+                        FirebaseDatabase.getInstance().getReference().child("users")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .updateChildren(map, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
-                    FirebaseDatabase.getInstance().getReference().child("users")
-                            .child(mAuth.getCurrentUser().getUid())
-                            .updateChildren(map, new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-
-                                    mDialog.dismiss();
-                                    if(databaseError!=null){
-                                        Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-
-                                    if(MainActivity.getInstance()!=null) {
-                                        MainActivity.getInstance().finish();
-                                        MainActivity.instance = null;
-                                    }
-                                    privacy_editor.putString("who_can_track","2").apply();
-
-                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            userDatabase.userDao().getUserById(1).setWho_can_track("2");
+                                        mDialog.dismiss();
+                                        if(databaseError!=null){
+                                            Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                            return;
                                         }
-                                    });
 
-                                }
-                            });
+                                        if(MainActivity.getInstance()!=null) {
+                                            MainActivity.getInstance().finish();
+                                            MainActivity.instance = null;
+                                        }
+                                        privacy_editor.putString("who_can_track","2").apply();
+
+                                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                userDatabase.userDao().getUserById(1).setWho_can_track("2");
+                                            }
+                                        });
+
+                                    }
+                                });
+
+                    }
 
                 }
+            });
 
-            }
-        });
+            ps_r3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-        ps_r3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
 
-                if(b){
+                        mDialog.setMessage("Please wait..");
+                        mDialog.show();
 
-                    mDialog.setMessage("Please wait..");
-                    mDialog.show();
+                        Map<String,Object>map=new HashMap<>();
+                        map.put("who_can_track","3");
 
-                    Map<String,Object>map=new HashMap<>();
-                    map.put("who_can_track","3");
+                        FirebaseDatabase.getInstance().getReference().child("users")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .updateChildren(map, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
-                    FirebaseDatabase.getInstance().getReference().child("users")
-                            .child(mAuth.getCurrentUser().getUid())
-                            .updateChildren(map, new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                        FirebaseDatabase.getInstance().getReference()
+                                                .child("users")
+                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                .child("trackers")
+                                                .removeValue(new DatabaseReference.CompletionListener() {
+                                                    @Override
+                                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
-                                    mDialog.dismiss();
-                                    if(databaseError!=null){
-                                        Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                                        return;
+                                                        mDialog.dismiss();
+                                                        if(databaseError!=null){
+                                                            Toast.makeText(SettingsActivity.this, "Some error occurred: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                                            return;
+                                                        }
+
+                                                        if(MainActivity.getInstance()!=null) {
+                                                            MainActivity.getInstance().finish();
+                                                            MainActivity.instance = null;
+                                                        }
+                                                        privacy_editor.putString("who_can_track","3").apply();
+                                                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                userDatabase.userDao().getUserById(1).setWho_can_track("3");
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+
                                     }
+                                });
 
-                                    if(MainActivity.getInstance()!=null) {
-                                        MainActivity.getInstance().finish();
-                                        MainActivity.instance = null;
-                                    }
-                                    privacy_editor.putString("who_can_track","3").apply();
-                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            userDatabase.userDao().getUserById(1).setWho_can_track("3");
-                                        }
-                                    });
-
-                                }
-                            });
+                    }
 
                 }
+            });
 
-            }
-        });
+        }
+
 
         /*walk_speed_txtview.setOnClickListener(new View.OnClickListener() {
             @Override

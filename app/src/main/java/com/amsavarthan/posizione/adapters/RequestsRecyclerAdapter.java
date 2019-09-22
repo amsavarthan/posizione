@@ -95,7 +95,7 @@ public class RequestsRecyclerAdapter extends RecyclerView.Adapter<RequestsRecycl
     @Override
     public void onBindViewHolder(@NonNull final RequestsRecyclerAdapter.MyViewHolder holder, int position) {
 
-        Request request=requestList.get(position);
+        final Request request=requestList.get(position);
         final String[] data=request.getData().split("/");
         final String userId=data[0];
         final String name=data[1];
@@ -183,7 +183,7 @@ public class RequestsRecyclerAdapter extends RecyclerView.Adapter<RequestsRecycl
                                                                                     return;
                                                                                 }
 
-                                                                                requestList.remove(holder.getAdapterPosition());
+                                                                                requestList.remove(request);
                                                                                 notifyDataSetChanged();
 
                                                                                 context.getSharedPreferences("Request",MODE_PRIVATE).edit().putString("count",String.valueOf(requestList.size())).apply();
@@ -252,7 +252,7 @@ public class RequestsRecyclerAdapter extends RecyclerView.Adapter<RequestsRecycl
                                                                     return;
                                                                 }
 
-                                                                requestList.remove(holder.getAdapterPosition());
+                                                                requestList.remove(request);
                                                                 notifyDataSetChanged();
                                                                 context.getSharedPreferences("Request",MODE_PRIVATE).edit().putString("count",String.valueOf(requestList.size())).apply();
                                                                 Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();

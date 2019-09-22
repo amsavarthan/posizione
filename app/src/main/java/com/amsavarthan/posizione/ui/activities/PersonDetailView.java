@@ -159,27 +159,22 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
 
         checkWhoCanTrack();
 
-        String[] loc_details=friendEntity.getLocation().split("/");
-        String[] device_details=friendEntity.getDevice().split("/");
-        u_latitude=Double.valueOf(loc_details[0]);
-        u_longitude=Double.valueOf(loc_details[1]);
-
-        try{
+        String[] device_details = friendEntity.getDevice().split("/");
+        try {
+            String[] loc_details = friendEntity.getLocation().split("/");
+            u_latitude = Double.valueOf(loc_details[0]);
+            u_longitude = Double.valueOf(loc_details[1]);
             t_location.setText(String.format("Last updated : %s", new PrettyTime().format(new Date(Long.parseLong(loc_details[5])))));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        try{
             t_device.setText(String.format("Last updated : %s", new PrettyTime().format(new Date(Long.parseLong(device_details[4])))));
+            getAndSetCityName(u_latitude,u_longitude);
         }catch (Exception e){
-            e.printStackTrace();
+            finish();
+            Toast.makeText(this, "No location updates found", Toast.LENGTH_SHORT).show();
         }
 
         name.setText(friendEntity.getName());
         unique_id.setText(String.format("Unique ID: %s", friendEntity.getUnique_id()));
         latlng_txt.setText(String.format("%s,%s", u_latitude, u_longitude));
-        getAndSetCityName(u_latitude,u_longitude);
         device_name.setText(device_details[0]);
         android_version.setText(device_details[1]);
         if(device_details[3].equals("Charging")) {
@@ -289,13 +284,10 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
         Geocoder geocoder=new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses=geocoder.getFromLocation(latitude,longitude,1);
-            if(addresses.get(0).getLocality()!="null") {
-                city.setText(String.format("%s, %s, %s", addresses.get(0).getLocality(), addresses.get(0).getAdminArea(), addresses.get(0).getCountryName()));
-            }else{
-                city.setText(String.format("%s, %s",addresses.get(0).getAdminArea(), addresses.get(0).getCountryName()));
+            String address=String.format("%s, %s, %s",addresses.get(0).getLocality(), addresses.get(0).getAdminArea(), addresses.get(0).getCountryName());
+            city.setText(address.replace("null, ",""));
 
-            }
-            } catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -468,31 +460,32 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
                                         @Override
                                         public void run() {
 
-                                            String[] loc_details=friendEntity.getLocation().split("/");
-                                            String[] device_details=friendEntity.getDevice().split("/");
-                                            u_latitude=Double.valueOf(loc_details[0]);
-                                            u_longitude=Double.valueOf(loc_details[1]);
-                                            if(device_details[3].equals("Charging")) {
-                                                battery_status.setText(String.format("%s • %s%%", device_details[3], device_details[2]));
-                                            }else{
-                                                battery_status.setText(String.format("%s%%", device_details[2]));
-                                            }
-                                            try{
+                                            try {
+                                                String[] loc_details = friendEntity.getLocation().split("/");
+                                                u_latitude = Double.valueOf(loc_details[0]);
+                                                u_longitude = Double.valueOf(loc_details[1]);
                                                 t_location.setText(String.format("Last updated : %s", new PrettyTime().format(new Date(Long.parseLong(loc_details[5])))));
+                                                getAndSetCityName(u_latitude,u_longitude);
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
+
+                                            String[] device_details=friendEntity.getDevice().split("/");
 
                                             try{
                                                 t_device.setText(String.format("Last updated : %s", new PrettyTime().format(new Date(Long.parseLong(device_details[4])))));
                                             }catch (Exception e){
                                                 e.printStackTrace();
                                             }
+                                            if(device_details[3].equals("Charging")) {
+                                                battery_status.setText(String.format("%s • %s%%", device_details[3], device_details[2]));
+                                            }else{
+                                                battery_status.setText(String.format("%s%%", device_details[2]));
+                                            }
                                             setBatteryIcon(Integer.parseInt(device_details[2]), device_details[3].equals("Charging"));
                                             name.setText(friendEntity.getName());
                                             unique_id.setText(String.format("Unique ID: %s", friendEntity.getUnique_id()));
                                             latlng_txt.setText(String.format("%s,%s", u_latitude, u_longitude));
-                                            getAndSetCityName(u_latitude,u_longitude);
                                             device_name.setText(device_details[0]);
                                             android_version.setText(device_details[1]);
 

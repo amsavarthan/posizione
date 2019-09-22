@@ -68,6 +68,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.abara.library.batterystats.BatteryStats;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -118,11 +120,12 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
     ImageView icon;
     TextView badge;
     View actionView;
-    MenuItem item,sync_item;
+    MenuItem requests_item,sync_item;
     SwipeRefreshLayout refreshLayout;
     String count;
     Chip lock;
     String pass;
+    MenuItem trackers_item;
 
     public static MainActivity getInstance(){
         return instance;
@@ -155,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
             }else{
                 location_switch.setEnabled(false);
             }
-                location_switch.setChecked(true);
+            location_switch.setChecked(true);
         }else{
             location_switch.setEnabled(true);
             location_switch.setChecked(false);
@@ -467,85 +470,6 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         sendBroadcast(broadcastIntent);
     }
 
-    private void getFriendsv2(){
-
-        refreshLayout.setRefreshing(true);
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                for(FriendEntity friendEntity:friendDatabase.friendDao().getFriendsList()){
-                    friendDatabase.friendDao().deleteUser(friendEntity);
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        friendEntities.clear();
-                        FirebaseDatabase.getInstance().getReference().child("users")
-                                .child(mAuth.getCurrentUser().getUid())
-                                .child("friends")
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                        for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-
-                                            FirebaseDatabase.getInstance().getReference().child("users")
-                                                    .orderByChild("unique_id")
-                                                    .equalTo(dataSnapshot1.getKey())
-                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                                            User user=dataSnapshot.getValue(User.class);
-                                                            final FriendEntity friendEntity=new FriendEntity();
-
-                                                            friendEntity.setName(user.getName());
-                                                            friendEntity.setPic(user.getImage());
-                                                            friendEntity.setPhone(user.getPhone());
-                                                            friendEntity.setDevice(user.getDevice());
-                                                            friendEntity.setUnique_id(user.getUnique_id());
-                                                            friendEntity.setWho_can_track(user.getWho_can_track());
-                                                            friendEntity.setLocation(user.getLocation());
-
-                                                            friendEntities.add(friendEntity);
-                                                            mAdapter.notifyDataSetChanged();
-
-                                                            AppExecutors.getInstance().diskIO()
-                                                                    .execute(new Runnable() {
-                                                                        @Override
-                                                                        public void run() {
-
-                                                                            friendDatabase.friendDao().addUser(friendEntity);
-                                                                        }
-                                                                    });
-
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-
-                                        }
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
-                    }
-                });
-
-            }
-        });
-
-
-    }
-
     private void getFriends(){
         refreshLayout.setRefreshing(true);
         friendEntities.clear();
@@ -557,14 +481,84 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        //When user is offline load data from ROOM
                         friendEntities.addAll(friendEntityList);
-                        if(friendEntities.isEmpty()){
-                            if(!Utils.isOnline(getApplicationContext())){
-                                refreshLayout.setRefreshing(false);
-                                Toast.makeText(MainActivity.this, "Couldn't sync with Posizione server", Toast.LENGTH_SHORT).show();
+
+                        if(!Utils.isOnline(getApplicationContext())){
+
+                            refreshLayout.setRefreshing(false);
+                            Toast.makeText(MainActivity.this, "Couldn't sync with Posizione server", Toast.LENGTH_SHORT).show();
+
+                            //Check for data in ROOM
+                            if(friendEntities.isEmpty()) {
+
+                                findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
+                                findViewById(R.id.emptyLayout).setAlpha(0.0f);
+                                findViewById(R.id.emptyLayout).animate()
+                                        .alpha(1.0f)
+                                        .setDuration(500)
+                                        .setListener(new AnimatorListenerAdapter() {
+                                            @Override
+                                            public void onAnimationEnd(Animator animation) {
+                                                super.onAnimationEnd(animation);
+                                                findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
+                                            }
+                                        })
+                                        .start();
                             }
-                            findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
-                            FirebaseDatabase.getInstance().getReference().child("users")
+
+                        }else{
+
+                            //Check user from ROOM and update the ROOM
+                            for(final FriendEntity friendEntity:friendEntities){
+
+                                FirebaseDatabase.getInstance()
+                                        .getReference()
+                                        .child("users")
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                        .child("friends")
+                                        .child(friendEntity.getUnique_id())
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if(!dataSnapshot.exists()){
+                                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            friendDatabase.friendDao().deleteUser(friendEntity);
+                                                            friendEntities.remove(friendEntity);
+                                                        }
+                                                    });
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                            }
+
+                            //When user is online get data from FIREBASE
+                            friendEntities.clear();
+                            findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
+                            findViewById(R.id.emptyLayout).setAlpha(0.0f);
+                            findViewById(R.id.emptyLayout).animate()
+                                    .alpha(1.0f)
+                                    .setDuration(500)
+                                    .setListener(new AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            super.onAnimationEnd(animation);
+                                            findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
+                                        }
+                                    })
+                                    .start();
+
+                            FirebaseDatabase.getInstance()
+                                    .getReference()
+                                    .child("users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("friends")
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -577,7 +571,18 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
                                             for(final DataSnapshot unique_id:dataSnapshot.getChildren()){
 
-                                                if (!unique_id.getValue(Boolean.class)) {
+                                                if(!unique_id.exists()){
+                                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            friendDatabase.friendDao().deleteUser(friendDatabase.friendDao().getFriendByUniqueId(unique_id.getKey()));
+                                                            mAdapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                                    continue;
+                                                }
+
+                                                if(!unique_id.getValue(Boolean.class)){
                                                     continue;
                                                 }
 
@@ -596,22 +601,93 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                                                         AppExecutors.getInstance().diskIO().execute(new Runnable() {
                                                                             @Override
                                                                             public void run() {
-                                                                                final FriendEntity friendEntity=new FriendEntity();
-                                                                                friendEntity.setName(user.getName());
-                                                                                friendEntity.setLocation(user.getLocation());
-                                                                                friendEntity.setPic(user.getImage());
-                                                                                friendEntity.setDevice(user.getDevice());
-                                                                                friendEntity.setUnique_id(user.getUnique_id());
-                                                                                friendEntity.setPhone(user.getPhone());
-                                                                                friendEntity.setWho_can_track(user.getWho_can_track());
-                                                                                friendDatabase.friendDao().addUser(friendEntity);
+
+                                                                                final FriendEntity friendEntity;
+
+                                                                                if(!user.getWho_can_track().equals("3")) {
+
+                                                                                    //if tracking is enabled by user
+                                                                                    if (friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id()) != null) {
+
+                                                                                        //if user already in ROOM then update
+                                                                                        friendEntity=friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id());
+                                                                                        friendEntity.setName(user.getName());
+                                                                                        friendEntity.setLocation(user.getLocation());
+                                                                                        friendEntity.setPic(user.getImage());
+                                                                                        friendEntity.setDevice(user.getDevice());
+                                                                                        friendEntity.setUnique_id(user.getUnique_id());
+                                                                                        friendEntity.setPhone(user.getPhone());
+                                                                                        friendEntity.setWho_can_track(user.getWho_can_track());
+
+                                                                                        friendDatabase.friendDao().updateUser(friendEntity);
+                                                                                    } else {
+
+                                                                                        //if user not in ROOM then add
+                                                                                        friendEntity=new FriendEntity();
+                                                                                        friendEntity.setName(user.getName());
+                                                                                        friendEntity.setLocation(user.getLocation());
+                                                                                        friendEntity.setPic(user.getImage());
+                                                                                        friendEntity.setDevice(user.getDevice());
+                                                                                        friendEntity.setUnique_id(user.getUnique_id());
+                                                                                        friendEntity.setPhone(user.getPhone());
+                                                                                        friendEntity.setWho_can_track(user.getWho_can_track());
+
+                                                                                        friendDatabase.friendDao().addUser(friendEntity);
+                                                                                    }
+                                                                                }else{
+
+                                                                                    //if tracking disabled by user then remove from ROOM and from firebase also
+                                                                                   friendEntity=null;
+                                                                                    FirebaseDatabase.getInstance()
+                                                                                            .getReference()
+                                                                                            .child("users")
+                                                                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                                                            .child("friends")
+                                                                                            .child(user.getUnique_id())
+                                                                                            .removeValue(new DatabaseReference.CompletionListener() {
+                                                                                                @Override
+                                                                                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                                                                    if(databaseError!=null){
+                                                                                                        databaseError.toException().printStackTrace();
+                                                                                                        return;
+                                                                                                    }
+
+                                                                                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                                                                        @Override
+                                                                                                        public void run() {
+                                                                                                            if (friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id()) != null) {
+                                                                                                                friendDatabase.friendDao().deleteUser(friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id()));
+                                                                                                            }
+                                                                                                        }
+                                                                                                    });
+
+                                                                                                }
+                                                                                            });
+
+                                                                                }
 
                                                                                 runOnUiThread(new Runnable() {
                                                                                     @Override
                                                                                     public void run() {
-                                                                                        friendEntities.add(friendEntity);
-                                                                                        findViewById(R.id.emptyLayout).setVisibility(View.GONE);
+                                                                                        if(!user.getWho_can_track().equals("3")) {
+                                                                                            friendEntities.add(friendEntity);
+
+                                                                                            findViewById(R.id.emptyLayout).animate()
+                                                                                                    .alpha(0.0f)
+                                                                                                    .setDuration(300)
+                                                                                                    .setListener(new AnimatorListenerAdapter() {
+                                                                                                        @Override
+                                                                                                        public void onAnimationEnd(Animator animation) {
+                                                                                                            super.onAnimationEnd(animation);
+                                                                                                            findViewById(R.id.emptyLayout).setVisibility(View.GONE);
+                                                                                                        }
+                                                                                                    })
+                                                                                                    .start();
+                                                                                        }
+
                                                                                         mAdapter.notifyDataSetChanged();
+
                                                                                     }
                                                                                 });
 
@@ -648,155 +724,12 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
                                         }
                                     });
-
-
-                        }else{
-                            refreshLayout.setRefreshing(true);
-
-                            if(!Utils.isOnline(getApplicationContext())){
-                                Toast.makeText(MainActivity.this, "Couldn't sync with Posizione server", Toast.LENGTH_SHORT).show();
-                                refreshLayout.setRefreshing(false);
-                            }
-
-                           for(final FriendEntity friendEntity:friendEntities){
-
-                               FirebaseDatabase.getInstance().getReference()
-                                       .child("users")
-                                       .child(mAuth.getCurrentUser().getUid())
-                                       .child("friends")
-                                       .child(friendEntity.getUnique_id())
-                                       .addListenerForSingleValueEvent(new ValueEventListener() {
-                                           @Override
-                                           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                               if(dataSnapshot.getValue(Boolean.class)){
-
-                                                   FirebaseDatabase.getInstance().getReference()
-                                                           .child("users")
-                                                           .orderByChild("unique_id")
-                                                           .equalTo(friendEntity.getUnique_id())
-                                                           .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                               @Override
-                                                               public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                                                   if(!dataSnapshot.exists()){
-                                                                       AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                                           @Override
-                                                                           public void run() {
-                                                                               friendDatabase.friendDao().deleteUser(friendEntity);
-                                                                               runOnUiThread(new Runnable() {
-                                                                                   @Override
-                                                                                   public void run() {
-                                                                                       mAdapter.notifyDataSetChanged();
-                                                                                   }
-                                                                               });
-                                                                           }
-                                                                       });
-                                                                       return;
-                                                                   }
-
-                                                                   for(final DataSnapshot userData:dataSnapshot.getChildren()){
-
-                                                                       if(!userData.exists()){
-                                                                           AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                                               @Override
-                                                                               public void run() {
-                                                                                   friendDatabase.friendDao().deleteUser(friendEntity);
-                                                                                   runOnUiThread(new Runnable() {
-                                                                                       @Override
-                                                                                       public void run() {
-                                                                                           mAdapter.notifyDataSetChanged();
-                                                                                       }
-                                                                                   });
-                                                                               }
-                                                                           });
-                                                                           return;
-                                                                       }
-
-                                                                       final User user=userData.getValue(User.class);
-
-                                                                       AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                                           @Override
-                                                                           public void run() {
-
-                                                                               final FriendEntity friendByUniqueId=friendDatabase.friendDao().getFriendByUniqueId(friendEntity.getUnique_id());
-                                                                               friendByUniqueId.setName(user.getName());
-                                                                               friendByUniqueId.setPic(user.getImage());
-                                                                               friendByUniqueId.setUnique_id(user.getUnique_id());
-                                                                               friendByUniqueId.setLocation(user.getLocation());
-                                                                               friendByUniqueId.setDevice(user.getDevice());
-                                                                               friendByUniqueId.setPhone(user.getPhone());
-                                                                               friendByUniqueId.setWho_can_track(user.getWho_can_track());
-
-                                                                               if(!friendByUniqueId.getWho_can_track().equals("3")) friendDatabase.friendDao().updateUser(friendByUniqueId);
-                                                                               else friendDatabase.friendDao().deleteUser(friendByUniqueId);
-
-                                                                           }
-                                                                       });
-
-                                                                   }
-
-                                                               }
-
-                                                               @Override
-                                                               public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                               }
-                                                           });
-
-                                               }else{
-
-                                                   AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                       @Override
-                                                       public void run() {
-                                                           friendDatabase.friendDao().deleteUser(friendEntity);
-                                                           runOnUiThread(new Runnable() {
-                                                               @Override
-                                                               public void run() {
-                                                                   mAdapter.notifyDataSetChanged();
-                                                               }
-                                                           });
-                                                       }
-                                                   });
-
-                                               }
-                                           }
-
-                                           @Override
-                                           public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                           }
-                                       });
-
-                               AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                   @Override
-                                   public void run() {
-                                       final List<FriendEntity> friendEntities=friendDatabase.friendDao().getFriendsList();
-                                       runOnUiThread(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               friendEntityList.clear();
-                                               friendEntityList.addAll(friendEntities);
-
-                                               if(!friendEntityList.isEmpty()){
-                                                   findViewById(R.id.emptyLayout).setVisibility(View.GONE);
-                                               }
-                                               refreshLayout.setRefreshing(false);
-                                               mAdapter.notifyDataSetChanged();
-
-                                           }
-                                       });
-                                   }
-                               });
-
-                           }
                         }
 
                     }
                 });
             }
         });
-
-
     }
 
     private void checkPermission() {
@@ -975,17 +908,19 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.menu_main,menu);
 
-        item=menu.findItem(R.id.action_requests);
+        trackers_item=menu.findItem(R.id.action_manage);
+        requests_item=menu.findItem(R.id.action_requests);
         sync_item=menu.findItem(R.id.action_sync);
-        actionView=item.getActionView();
+        actionView=requests_item.getActionView();
 
         icon=actionView.findViewById(R.id.notification_icon);
         badge=actionView.findViewById(R.id.badge_icon);
         icon.setImageResource(R.drawable.ic_notifications_none_24dp);
         badge.setVisibility(View.INVISIBLE);
 
+        trackers_item.setVisible(true);
         if(who_can_track.equals("2")){
-            item.setVisible(true);
+            requests_item.setVisible(true);
             sync_item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
             FirebaseDatabase.getInstance().getReference().child("users")
                     .child(mAuth.getCurrentUser().getUid())
@@ -995,12 +930,15 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
             actionView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onOptionsItemSelected(item);
+                    onOptionsItemSelected(requests_item);
                 }
             });
 
         }else{
-            item.setVisible(false);
+            if(who_can_track.equals("3")){
+                trackers_item.setVisible(false);
+            }
+            requests_item.setVisible(false);
             sync_item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 

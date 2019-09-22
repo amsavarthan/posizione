@@ -33,4 +33,6 @@
     <string name="jogging_speed">Jogging speed</string>
     <string name="running_speed">Running speed</string>
     <string name="logout">Logout</string>
+
+    <string name="mapbox_access_token">pk.eyJ1IjoibHZhbXNhdmFydGhhbiIsImEiOiJjazB0c3Y2ZmswN2Y5M25wZDF1ajZmZDYzIn0.M7_VaGo41CZTFTq2MTCDfA</string>
 </resources>
