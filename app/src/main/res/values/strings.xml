@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Posizione</string>
-    <string name="accept_terms">By clicking the button below you accept our Terms of Service and Privacy Policy</string>
     <string name="get_started">Get Started</string>
     <string name="next">Next</string>
     <string name="verify">Verify</string>

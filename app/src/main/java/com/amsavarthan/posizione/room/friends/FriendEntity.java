@@ -17,7 +17,7 @@ public class FriendEntity implements Parcelable {
     @ColumnInfo(name = "name")
     private String name;
     @ColumnInfo(name = "pic")
-    private String pic;
+    private String image;
     @ColumnInfo(name = "unique_id")
     private String unique_id;
     @ColumnInfo(name = "location")
@@ -35,7 +35,7 @@ public class FriendEntity implements Parcelable {
     public FriendEntity(int id, String name, String pic, String unique_id, String location, String device, String phone, String who_can_track) {
         this.id = id;
         this.name = name;
-        this.pic = pic;
+        this.image = pic;
         this.unique_id = unique_id;
         this.location = location;
         this.device = device;
@@ -46,12 +46,20 @@ public class FriendEntity implements Parcelable {
     protected FriendEntity(Parcel in) {
         id = in.readInt();
         name = in.readString();
-        pic = in.readString();
+        image = in.readString();
         unique_id = in.readString();
         location = in.readString();
         device = in.readString();
         phone = in.readString();
         who_can_track = in.readString();
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public static final Creator<FriendEntity> CREATOR = new Creator<FriendEntity>() {
@@ -98,14 +106,6 @@ public class FriendEntity implements Parcelable {
         this.location = location;
     }
 
-    public String getPic() {
-        return pic;
-    }
-
-    public void setPic(String pic) {
-        this.pic = pic;
-    }
-
     public String getDevice() {
         return device;
     }
@@ -123,7 +123,7 @@ public class FriendEntity implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
         parcel.writeString(name);
-        parcel.writeString(pic);
+        parcel.writeString(image);
         parcel.writeString(unique_id);
         parcel.writeString(location);
         parcel.writeString(device);

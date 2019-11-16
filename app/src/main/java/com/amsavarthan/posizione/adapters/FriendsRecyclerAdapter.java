@@ -86,10 +86,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
     public void onBindViewHolder(@NonNull final FriendsRecyclerAdapter.MyViewHolder holder, int position) {
 
         final FriendEntity friendEntity=friendEntities.get(position);
-        //Last item
-        if(friendEntities.size() > 1 && position == friendEntities.size() - 1){
-            holder.itemView.setPadding(0,0,0, dpTopx(context,80));
-        }
+
 
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
@@ -109,7 +106,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
 
         Glide.with(context)
                 .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.default_user_art))
-                .load(friendEntity.getPic())
+                .load(friendEntity.getImage())
                 .into(holder.pic);
 
         holder.fav.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +145,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
                             FavEntity favourite=new FavEntity();
                             favourite.setName(friendEntity.getName());
                             favourite.setLocation(friendEntity.getLocation());
-                            favourite.setPic(friendEntity.getPic());
+                            favourite.setPic(friendEntity.getImage());
                             favourite.setDevice(friendEntity.getDevice());
                             favourite.setUnique_id(friendEntity.getUnique_id());
                             favourite.setPhone(friendEntity.getPhone());
@@ -215,7 +212,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
 
                                     Glide.with(context)
                                             .asBitmap()
-                                            .load(friendEntity.getPic())
+                                            .load(friendEntity.getImage())
                                             .into(new SimpleTarget<Bitmap>() {
                                                 @Override
                                                 public void onResourceReady(@NonNull final Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -287,7 +284,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
 
                                     Glide.with(context)
                                             .asBitmap()
-                                            .load(friendEntity.getPic())
+                                            .load(friendEntity.getImage())
                                             .into(new SimpleTarget<Bitmap>() {
                                                 @Override
                                                 public void onResourceReady(@NonNull final Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

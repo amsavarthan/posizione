@@ -26,6 +26,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.amsavarthan.posizione.R;
 import com.amsavarthan.posizione.receivers.ManageServiceReceiver;
+import com.amsavarthan.posizione.room.fav.FavDatabase;
 import com.amsavarthan.posizione.room.friends.FriendDatabase;
 import com.amsavarthan.posizione.room.friends.FriendEntity;
 import com.amsavarthan.posizione.room.user.UserDatabase;
@@ -63,6 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
     private FriendDatabase friendDatabase;
     public Switch aSwitch;
     static SettingsActivity instance;
+    private FavDatabase favDatabase;
 
     public static SettingsActivity getInstance() {
         return instance;
@@ -124,6 +126,7 @@ public class SettingsActivity extends AppCompatActivity {
         userDatabase=UserDatabase.getInstance(this);
         friendDatabase=FriendDatabase.getInstance(this);
         mAuth=FirebaseAuth.getInstance();
+        favDatabase=FavDatabase.getInstance(this);
 
         aSwitch=findViewById(R.id.acci_switch);
         ll_r1=findViewById(R.id.ll_r1);
@@ -160,7 +163,27 @@ public class SettingsActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, final boolean b) {
                 if (b) {
                     aSwitch.setText(getResources().getString(R.string.accident_detection_off));
-                    startAccidentService();
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            final boolean isEmpty=favDatabase.favDao().getFavList().isEmpty();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(!isEmpty){
+                                        startAccidentService();
+                                    }else{
+                                        Toast.makeText(SettingsActivity.this, "Cannot start service without favourites", Toast.LENGTH_SHORT).show();
+                                        aSwitch.setChecked(false);
+                                    }
+                                }
+                            });
+
+                        }
+                    });
+
+
                 }else{
                     aSwitch.setText(getResources().getString(R.string.accident_detection_on));
                     stopAccidentService();

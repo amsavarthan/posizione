@@ -37,6 +37,7 @@ class ShakeListener implements SensorListener {
         mShakeListener = listener;
     }
 
+
     public void resume() {
         mSensorMgr = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
         if (mSensorMgr == null) {

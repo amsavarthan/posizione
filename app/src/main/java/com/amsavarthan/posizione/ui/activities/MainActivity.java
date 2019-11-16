@@ -54,6 +54,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.amsavarthan.posizione.BuildConfig;
 import com.amsavarthan.posizione.R;
 import com.amsavarthan.posizione.models.User;
+import com.amsavarthan.posizione.room.fav.FavDatabase;
+import com.amsavarthan.posizione.room.fav.FavEntity;
 import com.amsavarthan.posizione.room.friends.FriendDatabase;
 import com.amsavarthan.posizione.room.friends.FriendEntity;
 import com.amsavarthan.posizione.receivers.ManageServiceReceiver;
@@ -68,6 +70,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.abara.library.batterystats.BatteryStats;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -124,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
     Chip lock;
     String pass;
     MenuItem trackers_item;
+    FavDatabase favDatabase;
+    List<FavEntity> favEntities=new ArrayList<>();
+    private boolean flag;
 
     public static MainActivity getInstance(){
         return instance;
@@ -208,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         mRecyclerView=findViewById(R.id.recycler_view);
         mainLayout=findViewById(R.id.mainLayout);
 
+        favDatabase=FavDatabase.getInstance(this);
         friendEntities=new ArrayList<>();
         mAdapter=new FriendsRecyclerAdapter(this,friendEntities);
 
@@ -308,6 +316,8 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
             }
         });
 
+        checkFavouritesIfAvailableAsFriend();
+
     }
 
     private void validateUserExistense() {
@@ -319,43 +329,96 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         final User data=dataSnapshot.getValue(User.class);
 
-                        if(!user.getPhone().equals(data.getPhone())){
+                        try{
+                            if(!user.getPhone().equals(data.getPhone())){
 
-                            new MaterialDialog.Builder(instance)
-                                    .title("Phone number changed")
-                                    .content("It seems that the phone number linked with your account has been changed. Please verify to continue")
-                                    .positiveText("Verify")
-                                    .negativeText("Cancel")
-                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                new MaterialDialog.Builder(instance)
+                                        .title("Phone number changed")
+                                        .content("It seems that the phone number linked with your account has been changed. Please verify to continue")
+                                        .positiveText("Verify")
+                                        .negativeText("Cancel")
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                startActivity(new Intent(instance, VerifyPhoneActivity.class).putExtra("phone", user.getPhone()));
+                                                                finish();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        })
+                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                finish();
+                                            }
+                                        })
+                                        .canceledOnTouchOutside(false)
+                                        .cancelable(false)
+                                        .show();
+
+                                return;
+
+                            }
+                        }catch (Exception e){
+
+                            stopService();
+                            stopAccidentService();
+
+                            Map<String,Object> map=new HashMap<>();
+                            map.put("token","");
+                            FirebaseDatabase.getInstance().getReference().child("users")
+                                    .child(mAuth.getCurrentUser().getUid())
+                                    .updateChildren(map)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
-                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        public void onSuccess(Void aVoid) {
+
                                             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    UserEntity currentuser=userDatabase.userDao().getUserById(1);
+                                                    userDatabase.userDao().deleteUser(currentuser);
+                                                    for(FriendEntity friendEntity:friendDatabase.friendDao().getFriendsList()){
+                                                        friendDatabase.friendDao().deleteUser(friendEntity);
+                                                    }
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            startActivity(new Intent(instance, VerifyPhoneActivity.class).putExtra("phone", user.getPhone()));
+
+                                                            mAuth.signOut();
+                                                            startActivity(new Intent(getApplicationContext(),SplashScreen.class));
+                                                            try {
+                                                                MainActivity.getInstance().finish();
+                                                            }catch (Exception e){
+                                                                e.printStackTrace();
+                                                            }
                                                             finish();
+
                                                         }
                                                     });
                                                 }
                                             });
-                                        }
-                                    })
-                                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                            finish();
-                                        }
-                                    })
-                                    .canceledOnTouchOutside(false)
-                                    .cancelable(false)
-                                    .show();
 
-                            return;
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                            Toast.makeText(MainActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
 
                         }
+
 
                         if(!user.getToken().equals(data.getToken())){
                             AppExecutors.getInstance().diskIO().execute(new Runnable() {
@@ -416,6 +479,13 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                     }
                 });
 
+    }
+
+    private void stopAccidentService() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("com.amsavarthan.posizione.accident_detector.STOP");
+        broadcastIntent.setClass(getApplicationContext(), ManageServiceReceiver.class);
+        sendBroadcast(broadcastIntent);
     }
 
     private void startService() {
@@ -547,6 +617,8 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                     .child("users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("friends")
+                                    .orderByValue()
+                                    .equalTo(true)
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -556,21 +628,6 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                             }
 
                                             for(final DataSnapshot unique_id:dataSnapshot.getChildren()){
-
-                                                if(!unique_id.exists()){
-                                                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            friendDatabase.friendDao().deleteUser(friendDatabase.friendDao().getFriendByUniqueId(unique_id.getKey()));
-                                                            mAdapter.notifyDataSetChanged();
-                                                        }
-                                                    });
-                                                    continue;
-                                                }
-
-                                                if(!unique_id.getValue(Boolean.class)){
-                                                    continue;
-                                                }
 
                                                 FirebaseDatabase.getInstance().getReference()
                                                         .child("users")
@@ -582,13 +639,11 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
                                                                 if(dataSnapshot.exists()){
                                                                     for(DataSnapshot details:dataSnapshot.getChildren()){
-                                                                        final User user=details.getValue(User.class);
+                                                                        final FriendEntity user=details.getValue(FriendEntity.class);
 
                                                                         AppExecutors.getInstance().diskIO().execute(new Runnable() {
                                                                             @Override
                                                                             public void run() {
-
-                                                                                final FriendEntity friendEntity;
 
                                                                                 if(!user.getWho_can_track().equals("3")) {
 
@@ -596,34 +651,16 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                                                                     if (friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id()) != null) {
 
                                                                                         //if user already in ROOM then update
-                                                                                        friendEntity=friendDatabase.friendDao().getFriendByUniqueId(user.getUnique_id());
-                                                                                        friendEntity.setName(user.getName());
-                                                                                        friendEntity.setLocation(user.getLocation());
-                                                                                        friendEntity.setPic(user.getImage());
-                                                                                        friendEntity.setDevice(user.getDevice());
-                                                                                        friendEntity.setUnique_id(user.getUnique_id());
-                                                                                        friendEntity.setPhone(user.getPhone());
-                                                                                        friendEntity.setWho_can_track(user.getWho_can_track());
+                                                                                        friendDatabase.friendDao().updateUser(user);
 
-                                                                                        friendDatabase.friendDao().updateUser(friendEntity);
                                                                                     } else {
 
                                                                                         //if user not in ROOM then add
-                                                                                        friendEntity=new FriendEntity();
-                                                                                        friendEntity.setName(user.getName());
-                                                                                        friendEntity.setLocation(user.getLocation());
-                                                                                        friendEntity.setPic(user.getImage());
-                                                                                        friendEntity.setDevice(user.getDevice());
-                                                                                        friendEntity.setUnique_id(user.getUnique_id());
-                                                                                        friendEntity.setPhone(user.getPhone());
-                                                                                        friendEntity.setWho_can_track(user.getWho_can_track());
-
-                                                                                        friendDatabase.friendDao().addUser(friendEntity);
+                                                                                        friendDatabase.friendDao().addUser(user);
                                                                                     }
                                                                                 }else{
 
                                                                                     //if tracking disabled by user then remove from ROOM and from firebase also
-                                                                                   friendEntity=null;
                                                                                     FirebaseDatabase.getInstance()
                                                                                             .getReference()
                                                                                             .child("users")
@@ -657,8 +694,8 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                                                                     @Override
                                                                                     public void run() {
                                                                                         if(!user.getWho_can_track().equals("3")) {
-                                                                                            friendEntities.add(friendEntity);
-
+                                                                                            friendEntities.add(user);
+                                                                                            mAdapter.notifyDataSetChanged();
                                                                                             findViewById(R.id.emptyLayout).animate()
                                                                                                     .alpha(0.0f)
                                                                                                     .setDuration(300)
@@ -672,7 +709,6 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                                                                                     .start();
                                                                                         }
 
-                                                                                        mAdapter.notifyDataSetChanged();
 
                                                                                     }
                                                                                 });
@@ -701,22 +737,32 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                                                         });
 
                                             }
-                                            refreshLayout.setRefreshing(false);
-                                            if(friendEntities.isEmpty()){
-                                                findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
-                                                findViewById(R.id.emptyLayout).setAlpha(0.0f);
-                                                findViewById(R.id.emptyLayout).animate()
-                                                        .alpha(1.0f)
-                                                        .setDuration(300)
-                                                        .setListener(new AnimatorListenerAdapter() {
-                                                            @Override
-                                                            public void onAnimationEnd(Animator animation) {
-                                                                super.onAnimationEnd(animation);
-                                                                findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
-                                                            }
-                                                        })
-                                                        .start();
-                                            }
+
+                                            Handler handler=new Handler();
+                                            handler.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    refreshLayout.setRefreshing(false);
+                                                    mAdapter.notifyDataSetChanged();
+                                                    if(friendEntities.isEmpty()){
+                                                        findViewById(R.id.emptyLayout).setVisibility(View.INVISIBLE);
+                                                        findViewById(R.id.emptyLayout).setAlpha(0.0f);
+                                                        findViewById(R.id.emptyLayout).animate()
+                                                                .alpha(1.0f)
+                                                                .setDuration(300)
+                                                                .setListener(new AnimatorListenerAdapter() {
+                                                                    @Override
+                                                                    public void onAnimationEnd(Animator animation) {
+                                                                        super.onAnimationEnd(animation);
+                                                                        findViewById(R.id.emptyLayout).setVisibility(View.VISIBLE);
+                                                                    }
+                                                                })
+                                                                .start();
+                                                    }
+                                                }
+                                            },1000);
+
+
 
                                         }
 
@@ -1163,4 +1209,66 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
     public void onCancelled(@NonNull DatabaseError databaseError) {
 
     }
+
+    private void checkFavouritesIfAvailableAsFriend(){
+        if(!Utils.isOnline(this)){
+            return;
+        }
+        favEntities.clear();
+
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                favEntities.addAll(favDatabase.favDao().getFavList());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        for(final FavEntity favEntity:favEntities){
+
+                            FirebaseDatabase.getInstance()
+                                    .getReference()
+                                    .child("users")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .child("friends")
+                                    .child(favEntity.getUnique_id())
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if(!dataSnapshot.exists()){
+                                                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        favDatabase.favDao().deleteUser(favEntity);
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                favEntities.remove(favEntity);
+                                                                mAdapter.notifyDataSetChanged();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+
+                        }
+
+
+                    }
+                });
+            }
+        });
+
+
+    }
+
+
 }

@@ -64,7 +64,6 @@ public class SetProfileActivity extends AppCompatActivity {
     private User oldUser=null;
     private String phoneNumber;
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -507,4 +506,6 @@ public class SetProfileActivity extends AppCompatActivity {
                 .start(this);
 
     }
+
+ 
 }

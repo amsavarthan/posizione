@@ -1,5 +1,6 @@
 package com.amsavarthan.posizione.ui.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -20,7 +21,12 @@ import com.amsavarthan.posizione.models.Tracker;
 import com.amsavarthan.posizione.room.fav.FavDatabase;
 import com.amsavarthan.posizione.room.fav.FavEntity;
 import com.amsavarthan.posizione.utils.AppExecutors;
+import com.amsavarthan.posizione.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +79,51 @@ public class FavouritesActivity extends AppCompatActivity {
         });
 
         getFavourites();
+        checkFavouritesIfAvailableAsFriend();
+
+    }
+
+    private void checkFavouritesIfAvailableAsFriend(){
+        if(!Utils.isOnline(this)){
+            return;
+        }
+
+        for(final FavEntity favEntity:favEntities){
+
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("users")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child("friends")
+                    .child(favEntity.getUnique_id())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if(!dataSnapshot.exists()){
+                                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        favDatabase.favDao().deleteUser(favEntity);
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                favEntities.remove(favEntity);
+                                                mAdapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+        }
 
     }
 
@@ -107,8 +158,8 @@ public class FavouritesActivity extends AppCompatActivity {
                             return;
                         }
 
-
                         mAdapter.notifyDataSetChanged();
+                        checkFavouritesIfAvailableAsFriend();
 
                     }
                 });

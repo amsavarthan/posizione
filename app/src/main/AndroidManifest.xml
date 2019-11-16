@@ -20,7 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.activities.FavouritesActivity"/>
+        <activity android:name=".ui.activities.AccidentDetectedActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/AcciDetectorTheme"/>
+        <activity android:name=".ui.activities.FavouritesActivity" />
         <activity android:name=".ui.activities.ParentLockActivity" />
         <activity android:name=".ui.activities.ManageTrackers" />
         <activity android:name=".ui.activities.TrackRequests">
@@ -63,7 +66,7 @@
 
         <activity
             android:name=".ui.activities.SetProfileActivity"
-            android:theme="@style/AppTheme2" />
+            android:theme="@style/MapTheme" />
         <activity android:name=".ui.activities.MainActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
@@ -71,10 +74,10 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".ui.activities.VerifyPhoneActivity"
-            android:theme="@style/AppTheme2" />
+            android:theme="@style/MapTheme" />
         <activity
             android:name=".ui.activities.PhoneAuthActivity"
-            android:theme="@style/AppTheme2" />
+            android:theme="@style/MapTheme" />
         <activity
             android:name=".ui.activities.WelcomeScreen"
             android:theme="@style/SplashTheme" />

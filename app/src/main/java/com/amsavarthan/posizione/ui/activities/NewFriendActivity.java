@@ -336,7 +336,7 @@ public class NewFriendActivity extends AppCompatActivity {
                                                         FriendEntity friendEntity = new FriendEntity();
                                                         friendEntity.setName(user.getName());
                                                         friendEntity.setUnique_id(user.getUnique_id());
-                                                        friendEntity.setPic(user.getImage());
+                                                        friendEntity.setImage(user.getImage());
                                                         friendEntity.setLocation(user.getLocation());
                                                         friendEntity.setDevice(user.getDevice());
                                                         friendEntity.setPhone(user.getPhone());

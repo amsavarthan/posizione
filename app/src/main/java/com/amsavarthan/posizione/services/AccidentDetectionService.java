@@ -11,10 +11,12 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.amsavarthan.posizione.R;
 import com.amsavarthan.posizione.receivers.ManageServiceReceiver;
+import com.amsavarthan.posizione.ui.activities.AccidentDetectedActivity;
 import com.amsavarthan.posizione.ui.activities.MainActivity;
 import com.amsavarthan.posizione.ui.activities.SplashScreen;
 
@@ -24,6 +26,7 @@ public class AccidentDetectionService extends Service implements ShakeListener.O
     private Sensor mAccelerometer;
 
     @Override
+    @Nullable
     public IBinder onBind(Intent intent) {
         return null;
     }
@@ -32,8 +35,44 @@ public class AccidentDetectionService extends Service implements ShakeListener.O
         super.onCreate();
         this.mSensorManager = ((SensorManager)getSystemService(Context.SENSOR_SERVICE));
         this.mAccelerometer = this.mSensorManager.getDefaultSensor(1);
+
         mShaker = new ShakeListener(this);
         mShaker.setOnShakeListener(this);
+        showNotification();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mShaker!=null){
+            mShaker.pause();
+        }
+    }
+
+    @Override
+    public void onShake() {
+        Toast.makeText(AccidentDetectionService.this, "Accident detected!", Toast.LENGTH_LONG).show();
+        final Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vib != null) {
+            vib.vibrate(800);
+        }
+        if(mShaker!=null){
+            mShaker.pause();
+        }
+        Intent i = new Intent();
+        i.setClass(this, AccidentDetectedActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+    }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        showNotification();
+        return START_STICKY;
+    }
+
+    private void showNotification() {
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "accident");
         Intent ii = new Intent(this, SplashScreen.class);
@@ -54,23 +93,5 @@ public class AccidentDetectionService extends Service implements ShakeListener.O
 
         startForeground(2,mBuilder.build());
 
-    }
-
-    @Override
-    public void onShake() {
-        Toast.makeText(AccidentDetectionService.this, "Accident detected!", Toast.LENGTH_LONG).show();
-        final Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vib != null) {
-            vib.vibrate(500);
-        }
-        /*Intent i = new Intent();
-        i.setClass(this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);*/
-    }
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
     }
 }

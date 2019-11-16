@@ -451,7 +451,7 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
                                 @Override
                                 public void run() {
                                     friendEntity.setName(user.getName());
-                                    friendEntity.setPic(user.getImage());
+                                    friendEntity.setImage(user.getImage());
                                     friendEntity.setUnique_id(user.getUnique_id());
                                     friendEntity.setLocation(user.getLocation());
                                     friendEntity.setDevice(user.getDevice());
@@ -514,7 +514,7 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
         Glide.with(getApplicationContext())
                 .setDefaultRequestOptions(new RequestOptions().override(95,95))
                 .asBitmap()
-                .load(friendEntity.getPic())
+                .load(friendEntity.getImage())
                 .into(new SimpleTarget<Bitmap>() {
                     @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
@@ -679,7 +679,7 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
             @Override
             public void run() {
                 friendEntity.setName(user.getName());
-                friendEntity.setPic(user.getImage());
+                friendEntity.setImage(user.getImage());
                 friendEntity.setUnique_id(user.getUnique_id());
                 friendEntity.setLocation(user.getLocation());
                 friendEntity.setDevice(user.getDevice());
@@ -871,7 +871,7 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
 
                             Glide.with(getApplicationContext())
                                     .asBitmap()
-                                    .load(friendEntity.getPic())
+                                    .load(friendEntity.getImage())
                                     .into(new SimpleTarget<Bitmap>() {
                                         @Override
                                         public void onResourceReady(@NonNull final Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -941,7 +941,7 @@ public class PersonDetailView extends FragmentActivity implements OnMapReadyCall
 
                             Glide.with(getApplicationContext())
                                     .asBitmap()
-                                    .load(friendEntity.getPic())
+                                    .load(friendEntity.getImage())
                                     .into(new SimpleTarget<Bitmap>() {
                                         @Override
                                         public void onResourceReady(@NonNull final Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

@@ -22,6 +22,7 @@ public class ParentLockActivity extends AppCompatActivity {
     TextView textView;
     OtpView pass_code;
     FloatingActionButton fab;
+    private boolean fromNotification;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -38,6 +39,8 @@ public class ParentLockActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parental_lock);
+
+        fromNotification=getIntent().getBooleanExtra("fromNotification",false);
 
         getSupportActionBar().setTitle("Parental lock");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -85,7 +88,18 @@ public class ParentLockActivity extends AppCompatActivity {
 
                     if(input.equalsIgnoreCase(pass)) {
                         getSharedPreferences("lock",MODE_PRIVATE).edit().putString("password","0").apply();
-                        Toast.makeText(ParentLockActivity.this, "Parental lock disabled", Toast.LENGTH_SHORT).show();
+
+                        if(!fromNotification) {
+                            Toast.makeText(ParentLockActivity.this, "Parental lock disabled", Toast.LENGTH_SHORT).show();
+                        }else{
+
+                            Intent broadcastIntent = new Intent();
+                            broadcastIntent.setAction("com.amsavarthan.posizione.STOP");
+                            broadcastIntent.setClass(getApplicationContext(), ManageServiceReceiver.class);
+                            sendBroadcast(broadcastIntent);
+
+                        }
+
                         finish();
                     }else{
                         Toast.makeText(ParentLockActivity.this, "Invalid pin", Toast.LENGTH_SHORT).show();

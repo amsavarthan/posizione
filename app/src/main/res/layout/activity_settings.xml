@@ -83,6 +83,7 @@
 
         <TextView
             android:id="@+id/acci_title"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
@@ -94,6 +95,7 @@
 
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/info"
             android:textColor="#FFF"
             android:paddingStart="10dp"
@@ -106,6 +108,7 @@
             android:layout_height="wrap_content"/>
 
         <Switch
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             android:id="@+id/acci_switch"
             android:switchPadding="20dp"
